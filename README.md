@@ -49,21 +49,21 @@ https://www.lucidchart.com/invitations/accept/c719ef91-0be0-462c-9432-0dbcb8a638
         - "400": "error" - cannot read body or incorrect body
         - “401”: “error” - cannot verify the current user
         - “500”: “error” - internal server error
-- **/api/chatroom/{id}**: POST join a debate
+- **/api/chatroom/:channelID**: POST join a debate
     - POST: Join a debate
         - “200”: “application/json” - successfully joined a debate (either as a debater or audience)
         - "400": "error" - cannot read body or incorrect body
         - “401”: “error” - cannot verify the current user
         - “404”: “error” - could not find the debate
         - “502”: “error” - internal server error
-- **/api/chatroom/{id}/vote**: POST vote on debate
+- **/api/chatroom/:channelID/vote**: POST vote on debate
     - POST: Vote on debate
         - “200”: “application/json” - successfully voted on debate
         - "400": "error" - cannot read body or incorrect body
         - “401”: “error” - cannot verify the current user
         - “404”: “error” - could not find the debate
         - “502”: “error” - internal server error
-- **/api/chatroom/{id}/post**: POST a message
+- **/api/chatroom/:channelID/post**: POST a message
     - POST: Post a message
         - “200”: “application/json” - successfully posted a message
         - "400": "error" - cannot read body or incorrect body
