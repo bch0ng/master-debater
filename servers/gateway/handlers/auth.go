@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/bch0ng/master-debater/servers/gateway/models/users"
 	"github.com/dgrijalva/jwt-go"
@@ -82,13 +83,16 @@ func (context *HandlerContext) LoginUserHandler(w http.ResponseWriter, r *http.R
 	w.Write([]byte(jsonUser))
 }
 
-/*
 func (context *HandlerContext) LogoutUserHandler(w http.ResponseWriter, r *http.Request) {
 	c, err := r.Cookie("token")
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 
-	// Put JWT token into redis blacklist
+	err = context.Blacklist.Save(c.Value, time.Now().Sub(c.Expires))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Write([]byte("Successfully logged out."))
 }
-*/

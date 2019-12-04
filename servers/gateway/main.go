@@ -5,17 +5,11 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/INFO441-19au-org/assignments-bch0ng/servers/gateway/sessions"
 	"github.com/bch0ng/master-debater/servers/gateway/db"
 	"github.com/bch0ng/master-debater/servers/gateway/handlers"
+	"github.com/go-redis/redis"
 )
-
-func failOnError(err error, msg string) {
-	if err != nil && CHECKRABBIT {
-		log.Fatalf("%s: %s", msg, err)
-	}
-}
-
-const CHECKRABBIT = true
 
 //main is the main entry point for the server
 func main() {
@@ -37,8 +31,21 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Init Redis
+	redisAddr, redisAddrExists := os.LookupEnv("REDISADDR")
+	if !redisAddrExists {
+		log.Fatalf("Environment variable REDISADDR not defined.")
+		os.Exit(1)
+	}
+	redisClient := redis.NewClient(&redis.Options{
+		Addr: redisAddr,
+	})
+
+	redisSession := sessions.NewRedisStore(redisClient, 3600)
+
 	handlerContext := &handlers.HandlerContext{
-		Users: MySQLStore,
+		Users:     MySQLStore,
+		Blacklist: redisSession,
 	}
 
 	mux := http.NewServeMux()
