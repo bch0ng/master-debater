@@ -7,8 +7,6 @@ import (
 
 	"github.com/bch0ng/master-debater/servers/gateway/db"
 	"github.com/bch0ng/master-debater/servers/gateway/handlers"
-	"github.com/bch0ng/master-debater/servers/gateway/sessions"
-	"github.com/go-redis/redis"
 )
 
 //main is the main entry point for the server
@@ -38,21 +36,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Init Redis
-	redisAddr, redisAddrExists := os.LookupEnv("REDISADDR")
-	if !redisAddrExists {
-		log.Fatalf("Environment variable REDISADDR not defined.")
-		os.Exit(1)
-	}
-	redisClient := redis.NewClient(&redis.Options{
-		Addr: redisAddr,
-	})
-
-	redisStore := sessions.NewRedisStore(redisClient, 3600)
-
 	handlerContext := &handlers.HandlerContext{
-		Users:     MySQLStore,
-		Blacklist: redisStore,
+		Users: MySQLStore,
 	}
 
 	mux := http.NewServeMux()

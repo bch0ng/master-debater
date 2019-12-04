@@ -102,17 +102,6 @@ func (context *HandlerContext) LoginUserHandler(w http.ResponseWriter, r *http.R
 
 func (context *HandlerContext) LogoutUserHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodDelete {
-		c, err := r.Cookie("token")
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-		}
-
-		err = context.Blacklist.Save(c.Value, time.Now().Sub(c.Expires))
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
 		http.SetCookie(w, &http.Cookie{
 			Name:     "token",
 			Value:    "",
