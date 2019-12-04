@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/bch0ng/master-debater/servers/gateway/models/users"
 	"github.com/dgrijalva/jwt-go"
-
-	"github.com/INFO441-19au-org/assignments-bch0ng/servers/gateway/models/users"
 )
 
 // Create the JWT key used to create the signature
@@ -41,13 +40,13 @@ func (context *HandlerContext) CreateUserHandler(w http.ResponseWriter, r *http.
 				return
 			}
 
-			jsonUser, err := json.Marshal(user)
+			jsonUser, err := json.Marshal(insertedUser)
 			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}
 			w.WriteHeader(http.StatusCreated)
-			generateJWT(w)
+			generateJWT(w, insertedUser.Username)
 			w.Write([]byte(jsonUser))
 		}
 	}
@@ -79,10 +78,11 @@ func (context *HandlerContext) LoginUserHandler(w http.ResponseWriter, r *http.R
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	generateJWT(w)
+	generateJWT(w, creds.Username)
 	w.Write([]byte(jsonUser))
 }
 
+/*
 func (context *HandlerContext) LogoutUserHandler(w http.ResponseWriter, r *http.Request) {
 	c, err := r.Cookie("token")
 	if err != nil {
@@ -91,3 +91,4 @@ func (context *HandlerContext) LogoutUserHandler(w http.ResponseWriter, r *http.
 
 	// Put JWT token into redis blacklist
 }
+*/

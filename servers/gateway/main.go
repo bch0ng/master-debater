@@ -38,17 +38,24 @@ func main() {
 	}
 
 	handlerContext := &handlers.HandlerContext{
-		User: MySQLStore,
+		Users: MySQLStore,
 	}
 
+	mux := http.NewServeMux()
 	mux.HandleFunc("/api/user/create", handlerContext.CreateUserHandler)
 	mux.HandleFunc("/api/user/login", handlerContext.LoginUserHandler)
 
-	mux.HandleFunc("/api/chatroom", handlers.JWTMiddleware(func(w http.ResponseWriter, r *http.Request) {
-		w.Write("HELLO WORLD")
-	}))
+	jwtWrap := handlers.NewJWTMiddleware(testRoute(mux))
+	mux.Handle("/api/chatroom", jwtWrap)
 
 	corsMux := handlers.NewCORSMiddleware(mux)
 	log.Printf("Server is open and listening on %s", addr)
-	log.Fatal(http.ListenAndServeTLS(addr, tlsCertPath, tlsKeyPath, corsMux))
+	log.Fatal(http.ListenAndServe(addr, corsMux))
+}
+
+func testRoute(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("HELLO WORLD"))
+		h.ServeHTTP(w, r)
+	})
 }

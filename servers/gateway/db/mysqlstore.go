@@ -7,7 +7,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/INFO441-19au-org/assignments-bch0ng/servers/gateway/models/users"
+	_ "github.com/go-sql-driver/mysql"
+
+	"github.com/bch0ng/master-debater/servers/gateway/models/users"
 )
 
 const (
@@ -26,8 +28,7 @@ func scanRowsIntoUser(rows *sql.Rows, err error, store *MySQLStore) (*users.User
 	concreteUser := users.User{}
 	newUser := &concreteUser
 	for rows.Next() {
-		if err := rows.Scan(&newUser.ID, &newUser.Email, &newUser.PassHash, &newUser.UserName,
-			&newUser.FirstName, &newUser.LastName, &newUser.PhotoURL); err != nil {
+		if err := rows.Scan(&newUser.ID, &newUser.PassHash, &newUser.Username); err != nil {
 			fmt.Printf("error scanning row: %v\n", err)
 		}
 	}
@@ -58,13 +59,13 @@ func (store *MySQLStore) GetByID(id int64) (*users.User, error) {
 }
 
 func (store *MySQLStore) GetByUserName(username string) (*users.User, error) {
-	query := fmt.Sprintf("select * from users where user_name='%s' limit 1", username)
+	query := fmt.Sprintf("select * from users where username='%s' limit 1", username)
 	return performGetQuery(query, store)
 }
 
 func (store *MySQLStore) Insert(user *users.User) (*users.User, error) {
 	sqlStatement := `INSERT INTO users (passhash, username) VALUES (?,?);`
-	res, err := store.MySQLDB.Exec(sqlStatement, user.PassHash, user.UserName)
+	res, err := store.MySQLDB.Exec(sqlStatement, user.PassHash, user.Username)
 	if err != nil {
 		fmt.Printf("error inserting new row: %v\n", err)
 	} else {

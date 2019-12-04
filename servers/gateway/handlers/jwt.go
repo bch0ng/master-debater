@@ -21,6 +21,12 @@ func (jwt *JWTMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	jwt.handler.ServeHTTP(w, r)
 }
 
+// NewJWTMiddleware initializes a new JWTMiddleware struct with the given
+// HTTP handler.
+func NewJWTMiddleware(handler http.Handler) *JWTMiddleware {
+	return &JWTMiddleware{handler}
+}
+
 // JWT Middleware
 func validateJWT(w http.ResponseWriter, r *http.Request) {
 	c, err := r.Cookie("token")
@@ -51,13 +57,13 @@ func validateJWT(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func generateJWT(w http.ResponseWriter) {
+func generateJWT(w http.ResponseWriter, username string) {
 	// Declare the expiration time of the token
 	// here, we have kept it as 5 minutes
 	expirationTime := time.Now().Add(5 * time.Minute)
 	// Create the JWT claims, which includes the username and expiry time
 	claims := &Claims{
-		Username: creds.Username,
+		Username: username,
 		StandardClaims: jwt.StandardClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds
 			ExpiresAt: expirationTime.Unix(),
@@ -77,9 +83,11 @@ func generateJWT(w http.ResponseWriter) {
 	// Finally, we set the client cookie for "token" as the JWT we just generated
 	// we also set an expiry time which is the same as the token itself
 	http.SetCookie(w, &http.Cookie{
-		Name:    "token",
-		Value:   tokenString,
-		Expires: expirationTime,
+		Name:     "token",
+		Value:    tokenString,
+		Expires:  expirationTime,
+		HttpOnly: true,
+		Secure:   true,
 	})
 }
 
