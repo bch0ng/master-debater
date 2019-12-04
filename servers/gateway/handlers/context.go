@@ -7,6 +7,6 @@ import (
 
 // HandlerContext saves the required context for handlers.
 type HandlerContext struct {
-	Users     users.Store         `json:"users"`
-	Blacklist sessions.RedisStore `json:"blacklist"`
+	Users     users.Store          `json:"users"`
+	Blacklist *sessions.RedisStore `json:"blacklist"`
 }

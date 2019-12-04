@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/INFO441-19au-org/assignments-bch0ng/servers/gateway/sessions"
 	"github.com/bch0ng/master-debater/servers/gateway/db"
 	"github.com/bch0ng/master-debater/servers/gateway/handlers"
+	"github.com/bch0ng/master-debater/servers/gateway/sessions"
 	"github.com/go-redis/redis"
 )
 
@@ -17,6 +17,13 @@ func main() {
 	addr, addrExists := os.LookupEnv("ADDR")
 	if !addrExists {
 		addr = ":3003"
+	}
+
+	// JWT Key
+	_, jwtSecretExists := os.LookupEnv("JWT_SECRET")
+	if !jwtSecretExists {
+		log.Fatalf("Environment variable JWT_SECRET not defined.")
+		os.Exit(1)
 	}
 
 	// MySQL conenction
@@ -41,19 +48,19 @@ func main() {
 		Addr: redisAddr,
 	})
 
-	redisSession := sessions.NewRedisStore(redisClient, 3600)
+	redisStore := sessions.NewRedisStore(redisClient, 3600)
 
 	handlerContext := &handlers.HandlerContext{
 		Users:     MySQLStore,
-		Blacklist: redisSession,
+		Blacklist: redisStore,
 	}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/user/create", handlerContext.CreateUserHandler)
 	mux.HandleFunc("/api/user/login", handlerContext.LoginUserHandler)
 
-	jwtWrap := handlers.NewJWTMiddleware(testRoute(mux))
-	mux.Handle("/api/chatroom", jwtWrap)
+	mux.Handle("/api/chatroom", handlers.NewJWTMiddleware(testRoute(mux)))
+	mux.Handle("/api/user/logout", handlers.NewJWTMiddleware(testRoute2(mux, handlerContext)))
 
 	corsMux := handlers.NewCORSMiddleware(mux)
 	log.Printf("Server is open and listening on %s", addr)
@@ -63,6 +70,11 @@ func main() {
 func testRoute(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("HELLO WORLD"))
-		h.ServeHTTP(w, r)
+	})
+}
+
+func testRoute2(h http.Handler, context *handlers.HandlerContext) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		context.LogoutUserHandler(w, r)
 	})
 }

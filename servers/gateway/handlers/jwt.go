@@ -1,11 +1,16 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 )
+
+// Create the JWT key used to create the signature
+var jwtKey = []byte(os.Getenv("JWT_SECRET"))
 
 type JWTMiddleware struct {
 	handler http.Handler
@@ -13,7 +18,26 @@ type JWTMiddleware struct {
 
 // ServeHTTP serves HTTP with CORS enabled.
 func (jwt *JWTMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	validateJWT(w, r)
+	c, err := r.Cookie("token")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	token, exp, err := validateJWT(c.Value)
+	if err == nil {
+		http.SetCookie(w, &http.Cookie{
+			Name:     "token",
+			Value:    token,
+			Expires:  exp,
+			Path:     "/",
+			HttpOnly: true,
+		})
+	}
+
 	if r.Method == "OPTIONS" {
 		w.WriteHeader(http.StatusOK)
 		return
@@ -28,36 +52,28 @@ func NewJWTMiddleware(handler http.Handler) *JWTMiddleware {
 }
 
 // JWT Middleware
-func validateJWT(w http.ResponseWriter, r *http.Request) {
-	c, err := r.Cookie("token")
-	if err != nil {
-		if err == http.ErrNoCookie {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	tknStr := c.Value
+func validateJWT(token string) (string, time.Time, error) {
 	claims := &Claims{}
-	tkn, err := jwt.ParseWithClaims(tknStr, claims, func(token *jwt.Token) (interface{}, error) {
+	tkn, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
 		return jwtKey, nil
 	})
 	if err != nil {
 		if err == jwt.ErrSignatureInvalid {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
+			return "", time.Now(), err
 		}
-		w.WriteHeader(http.StatusBadRequest)
-		return
+		return "", time.Now(), err
 	}
 	if !tkn.Valid {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
+		return "", time.Now(), errors.New("invalid token")
 	}
+	token, exp, err := Refresh(claims)
+	if err != nil {
+		return "", time.Now(), err
+	}
+	return token, exp, nil
 }
 
-func generateJWT(w http.ResponseWriter, username string) {
+func generateJWT(username string) (string, time.Time, error) {
 	// Declare the expiration time of the token
 	// here, we have kept it as 5 minutes
 	expirationTime := time.Now().Add(5 * time.Minute)
@@ -76,57 +92,18 @@ func generateJWT(w http.ResponseWriter, username string) {
 	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {
 		// If there is an error in creating the JWT return an internal server error
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		return "", time.Now(), err
 	}
 
-	// Finally, we set the client cookie for "token" as the JWT we just generated
-	// we also set an expiry time which is the same as the token itself
-	http.SetCookie(w, &http.Cookie{
-		Name:     "token",
-		Value:    tokenString,
-		Expires:  expirationTime,
-		HttpOnly: true,
-		Secure:   true,
-	})
+	return tokenString, expirationTime, nil
 }
 
-func Refresh(w http.ResponseWriter, r *http.Request) {
-	// (BEGIN) The code uptil this point is the same as the first part of the `Welcome` route
-	c, err := r.Cookie("token")
-	if err != nil {
-		if err == http.ErrNoCookie {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	tknStr := c.Value
-	claims := &Claims{}
-	tkn, err := jwt.ParseWithClaims(tknStr, claims, func(token *jwt.Token) (interface{}, error) {
-		return jwtKey, nil
-	})
-	if err != nil {
-		if err == jwt.ErrSignatureInvalid {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	if !tkn.Valid {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-	// (END) The code up-till this point is the same as the first part of the `Welcome` route
-
+func Refresh(claims *Claims) (string, time.Time, error) {
 	// We ensure that a new token is not issued until enough time has elapsed
 	// In this case, a new token will only be issued if the old token is within
 	// 30 seconds of expiry. Otherwise, return a bad request status
 	if time.Unix(claims.ExpiresAt, 0).Sub(time.Now()) > 30*time.Second {
-		w.WriteHeader(http.StatusBadRequest)
-		return
+		return "", time.Now(), errors.New("token still has > 30 seconds before expiring")
 	}
 
 	// Now, create a new token for the current use, with a renewed expiration time
@@ -135,14 +112,8 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		return "", time.Now(), err
 	}
 
-	// Set the new token as the users `token` cookie
-	http.SetCookie(w, &http.Cookie{
-		Name:    "token",
-		Value:   tokenString,
-		Expires: expirationTime,
-	})
+	return tokenString, expirationTime, nil
 }

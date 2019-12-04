@@ -10,9 +10,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-// Create the JWT key used to create the signature
-var jwtKey = []byte("my_secret_key")
-
 // Create a struct that will be encoded to a JWT.
 // We add jwt.StandardClaims as an embedded type, to provide fields like expiry time
 type Claims struct {
@@ -47,7 +44,16 @@ func (context *HandlerContext) CreateUserHandler(w http.ResponseWriter, r *http.
 				return
 			}
 			w.WriteHeader(http.StatusCreated)
-			generateJWT(w, insertedUser.Username)
+			token, exp, err := generateJWT(insertedUser.Username)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
+			http.SetCookie(w, &http.Cookie{
+				Name:     "token",
+				Value:    token,
+				Expires:  exp,
+				HttpOnly: true,
+			})
 			w.Write([]byte(jsonUser))
 		}
 	}
@@ -79,20 +85,41 @@ func (context *HandlerContext) LoginUserHandler(w http.ResponseWriter, r *http.R
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	generateJWT(w, creds.Username)
-	w.Write([]byte(jsonUser))
-}
-
-func (context *HandlerContext) LogoutUserHandler(w http.ResponseWriter, r *http.Request) {
-	c, err := r.Cookie("token")
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-	}
-
-	err = context.Blacklist.Save(c.Value, time.Now().Sub(c.Expires))
+	token, exp, err := generateJWT(creds.Username)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	w.Write([]byte("Successfully logged out."))
+	http.SetCookie(w, &http.Cookie{
+		Name:     "token",
+		Value:    token,
+		Expires:  exp,
+		Path:     "/",
+		HttpOnly: true,
+	})
+	w.Write([]byte(jsonUser))
+}
+
+func (context *HandlerContext) LogoutUserHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodDelete {
+		c, err := r.Cookie("token")
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+		}
+
+		err = context.Blacklist.Save(c.Value, time.Now().Sub(c.Expires))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "token",
+			Value:    "",
+			Expires:  time.Unix(0, 0),
+			Path:     "/",
+			HttpOnly: true,
+		})
+		w.Write([]byte("Successfully logged out."))
+	}
 }
