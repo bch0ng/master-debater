@@ -61,7 +61,7 @@ router.post("/create", async function (req, res, next) {
           type: "channel-new",
           channel: doc.ops[0],
         };
-        //RabbitMQ.publish(newChannelNotify);
+        RabbitMQ.publish(newChannelNotify);
         return res.json(doc.ops[0]);
       });
     } catch (error) {
@@ -184,7 +184,7 @@ router.delete("/:channelID", function (req, res, next) {
             if (doc.private) {
               deleteChannelNotify.userIDs = doc.members;
             }
-            //RabbitMQ.publish(deleteChannelNotify);
+            RabbitMQ.publish(deleteChannelNotify);
             return res.status(200).type("text").send('Delete successful!');
           })
         } else {
@@ -256,7 +256,7 @@ router.post("/:channelID/post", async function (req, res, next) {
             if (newChannel.private) {
               newMessageNotify.userIDs = newChannel.members;
             }
-            //RabbitMQ.publish(newMessageNotify);
+            RabbitMQ.publish(newMessageNotify);
             return res.json(doc.ops[0]);
           });
         } else {

@@ -1,3 +1,4 @@
-docker build -t bch0ng/mongo-service .
+#!/bin/sh
+docker build -t $DOCKER_USERNAME/micro-debates .
 docker login
-docker push bch0ng/mongo-service;
+docker push $DOCKER_USERNAME/micro-debates;

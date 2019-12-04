@@ -1,8 +1,8 @@
 FROM node:10
-WORKDIR /messaging
+WORKDIR /debates
 
 COPY package*.json ./
 
 RUN npm install
-COPY . /messaging
+COPY . /debates
 CMD ["npm","start"]

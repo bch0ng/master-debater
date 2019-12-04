@@ -1,0 +1,53 @@
+version: '3'
+services:
+  gateway:
+    container_name: gateway
+    image: bch0ng/debate-gateway
+    restart: always
+    ports:
+      - 443:443
+    environment:
+      - MICRO_ADDR=micro-debates
+      - DSN=root@tcp(mysql)/master_debater
+      - RABBITMQ_ADDR=amqp://rabbitmq
+      - JWT_SECRET=shhhhhh
+      - ADDR=:443
+      - TLSCERT=/etc/letsencrypt/live/masterdebater.com/fullchain.pem
+      - TLSKEY=/etc/letsencrypt/live/masterdebater.com/privkey.pem
+    volumes:
+      - /Users/bchong/certs:/etc/letsencrypt/live/masterdebater.com
+    depends_on:
+      - mysql
+      - micro-debates
+      - rabbitmq
+  mysql:
+    container_name: mysql
+    image: bch0ng/debate-mysql
+    restart: always
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+      - MYSQL_DATABASE=master_debater
+  mongodb:
+    container_name: mongodb
+    image: bch0ng/debate-mongodb
+    restart: always
+    environment:
+      - MONGO_INITDB_DATABASE=master_debater
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq
+    restart: always
+  micro-debates:
+    container_name: micro-debates
+    image: bch0ng/micro-debates
+    restart: always
+    expose:
+      - 9999
+    environment:
+      - PORT=80
+      - RABBITMQ_ADDR=amqp://rabbitmq
+      - MONGO_URI=mongodb://mongodb
+      - MONGO_DB=master_debater
+    depends_on:
+      - rabbitmq
+      - mongodb

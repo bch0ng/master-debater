@@ -17,7 +17,7 @@ app.use(morgan('combined'))
 
 const server = http.createServer(app);
 
-//RabbitMQ.connect(process.env.RABBITMQADDR);
+RabbitMQ.connect(process.env.RABBITMQ_ADDR);
 
 app.use("/api/debate/", apiRoute);
 

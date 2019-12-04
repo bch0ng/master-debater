@@ -4,8 +4,7 @@
   "description": "This directory contains the source code for your messaging microservice",
   "main": "index.js",
   "scripts": {
-    "regularStart": "node index.js",
-    "start": "nodemon index.js",
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -21,7 +20,6 @@
     "mongoose": "^5.7.11"
   },
   "devDependencies": {
-    "morgan": "^1.9.1",
-    "nodemon": "^1.19.4"
+    "morgan": "^1.9.1"
   }
 }

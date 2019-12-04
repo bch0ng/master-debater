@@ -2,15 +2,19 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"sync"
 
 	"github.com/bch0ng/master-debater/servers/gateway/db"
 	"github.com/bch0ng/master-debater/servers/gateway/handlers"
 	"github.com/bch0ng/master-debater/servers/gateway/models/users"
+	"github.com/gorilla/websocket"
+	"github.com/streadway/amqp"
 )
 
 //main is the main entry point for the server
@@ -18,13 +22,24 @@ func main() {
 	// Read in ENV variables
 	addr, addrExists := os.LookupEnv("ADDR")
 	if !addrExists {
-		addr = ":3003"
+		addr = ":443"
 	}
 
 	// JWT Key
 	_, jwtSecretExists := os.LookupEnv("JWT_SECRET")
 	if !jwtSecretExists {
 		log.Fatalf("Environment variable JWT_SECRET not defined.")
+		os.Exit(1)
+	}
+
+	tlsCertPath, tlsCertExists := os.LookupEnv("TLSCERT")
+	if !tlsCertExists {
+		log.Fatalf("Environment variable TLSCERT not defined.")
+		os.Exit(1)
+	}
+	tlsKeyPath, tlsKeyExists := os.LookupEnv("TLSKEY")
+	if !tlsKeyExists {
+		log.Fatalf("Environment variable TLSKEY not defined.")
 		os.Exit(1)
 	}
 
@@ -52,6 +67,32 @@ func main() {
 		CurrUser: new(users.User),
 	}
 
+	// RabbitMQ address
+	rabbitmqAddr, rabbitmqAddrExists := os.LookupEnv("RABBITMQ_ADDR")
+	if !rabbitmqAddrExists {
+		log.Fatalf("Environment variable RABBITMQ_ADDR not defined.")
+		os.Exit(1)
+	}
+	rabbitConn, err := amqp.Dial(rabbitmqAddr)
+	if err != nil {
+		log.Fatal("Rabbit server not available")
+	}
+	ch, err := rabbitConn.Channel()
+	if err != nil {
+		log.Fatal("Failed to open a channel")
+	}
+	defer func() {
+		fmt.Println("Rabbit MQ connection closing")
+		rabbitConn.Close()
+	}()
+	websocketContext := &handlers.WebsocketContext{
+		Context:       *handlerContext,
+		Connections:   make(map[int]*websocket.Conn),
+		Lock:          &sync.Mutex{},
+		RabbitChannel: ch,
+	}
+	websocketContext.StartRabbitConsumer()
+
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/api/debate/", func(w http.ResponseWriter, r *http.Request) {
@@ -76,7 +117,7 @@ func main() {
 
 	corsMux := handlers.NewCORSMiddleware(mux)
 	log.Printf("Server is open and listening on %s", addr)
-	log.Fatal(http.ListenAndServe(addr, corsMux))
+	log.Fatal(http.ListenAndServeTLS(addr, tlsCertPath, tlsKeyPath, corsMux))
 }
 
 func testRoute(h http.Handler) http.Handler {

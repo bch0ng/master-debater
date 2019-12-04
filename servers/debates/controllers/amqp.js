@@ -1,6 +1,6 @@
 const amqp = require('amqplib/callback_api');
 
-const QUEUE_NAME = 'messaging';
+const QUEUE_NAME = 'debate';
 
 let _conn = null;
 let _channel = null;
