@@ -6,5 +6,6 @@ import (
 
 // HandlerContext saves the required context for handlers.
 type HandlerContext struct {
-	Users users.Store `json:"users"`
+	Users    users.Store `json:"users"`
+	CurrUser *users.User `json:"user"`
 }

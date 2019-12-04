@@ -37,6 +37,7 @@ func (context *HandlerContext) CreateUserHandler(w http.ResponseWriter, r *http.
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}
+			context.CurrUser = insertedUser
 
 			jsonUser, err := json.Marshal(insertedUser)
 			if err != nil {
@@ -79,6 +80,7 @@ func (context *HandlerContext) LoginUserHandler(w http.ResponseWriter, r *http.R
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
+	context.CurrUser = user
 
 	jsonUser, err := json.Marshal(user)
 	if err != nil {

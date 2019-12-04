@@ -1,12 +1,16 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"os"
 
 	"github.com/bch0ng/master-debater/servers/gateway/db"
 	"github.com/bch0ng/master-debater/servers/gateway/handlers"
+	"github.com/bch0ng/master-debater/servers/gateway/models/users"
 )
 
 //main is the main entry point for the server
@@ -36,11 +40,34 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Microservice address
+	microAddr, microAddrExists := os.LookupEnv("MICRO_ADDR")
+	if !microAddrExists {
+		log.Fatalf("Environment variable MICRO_ADDR not defined.")
+		os.Exit(1)
+	}
+
 	handlerContext := &handlers.HandlerContext{
-		Users: MySQLStore,
+		Users:    MySQLStore,
+		CurrUser: new(users.User),
 	}
 
 	mux := http.NewServeMux()
+
+	mux.HandleFunc("/api/debate/", func(w http.ResponseWriter, r *http.Request) {
+		if handlerContext.CurrUser.Username != "" {
+			json, err := json.Marshal(handlerContext.CurrUser)
+			if err != nil {
+				log.Fatal(err)
+			}
+			r.Header.Set("X-User", string(json))
+		} else {
+			r.Header.Del("X-User")
+		}
+		channelsProxy := httputil.NewSingleHostReverseProxy(&url.URL{Scheme: "http", Host: microAddr})
+		channelsProxy.ServeHTTP(w, r)
+	})
+
 	mux.HandleFunc("/api/user/create", handlerContext.CreateUserHandler)
 	mux.HandleFunc("/api/user/login", handlerContext.LoginUserHandler)
 
