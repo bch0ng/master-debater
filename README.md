@@ -22,7 +22,7 @@ https://www.lucidchart.com/invitations/accept/c719ef91-0be0-462c-9432-0dbcb8a638
 |--------|----|-----------|
 |P0|As a debater|I want to filter out chatrooms with my favoured topics. I want to be able to post within chat rooms. I want to see my mailbox for new messages.<br />API routes: <ul><li>GET /api/debate/chatroom</li><li>POST /api/debate/chatroom/:channelID/post</li></ul>|
 |P1|As an audience|I want to vote affirmative or negative for a claim in a chatroom. I want to be able to create an account.<br />API routes:<ul><li>POST /api/debate/chatroom/:channelID/vote</li><li>POST /api/user/create</li><li>POST /api/user/login</li></ul>|
-|P2|As a host|I want to create a chatroom with my favoured topics.<br />API routes:<ul><li>GET /api/debate/chatroom/create</li><li>API:POST /api/debate/chatroom/:channelID</li></ul>|
+|P2|As a host|I want to create a chatroom with my favoured topics.<br />API routes:<ul><li>GET /api/debate/chatroom/create</li><li>POST /api/debate/chatroom/:channelID</li></ul>|
  
 
 ### API Design
