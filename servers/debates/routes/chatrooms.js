@@ -39,10 +39,12 @@ router.post("/create", async function (req, res, next) {
       id: insertID,
       name: req.body.name,
       description: "",
+      creator: JSON.parse(req.headers["x-user"]),
       debaters: [
         JSON.parse(req.headers["x-user"])
       ],
-      vote: 0,
+      voted: [],
+      votes: 0,
       createdAt: new Date()
     };
     if (description) {
@@ -116,8 +118,8 @@ router.post("/:channelID", function (req, res, next) {
   }
 });
 
-// :vote +1 = for, -1 = against
-router.post("/:channelID/vote/:vote", function (req, res, next) {
+// req.body.vote +1 = for, -1 = against
+router.post("/:channelID/vote", function (req, res, next) {
   let attemptedChannelID = req.params.channelID;
   if (attemptedChannelID && req.headers["x-user"]) {
     let mongoDb = MongoClient.getDB();
@@ -132,9 +134,18 @@ router.post("/:channelID/vote/:vote", function (req, res, next) {
             message: 'Error fetching channel!'
           });
         }
+        const voted = newChannel.voted;
+        if (voted.filter(function(voter) { return voter.id === currUserID; }).length > 0) {
+          return res.status(400).json("You have already voted for this debate.");
+        } else {
+          voted.push(JSON.parse(req.headers["x-user"]));
+        }
         mongoDb.collection('channel').findOneAndUpdate(
           { "id": parseInt(attemptedChannelID) },
-          { $inc: { vote: req.params.vote }},
+          {
+            $inc: { votes: req.body.vote },
+            $set: { voted: voted }
+          },
           { returnOriginal: false },
           function(err, doc) {
             return res.status(200).json("Vote successfully entered!");
@@ -159,9 +170,7 @@ router.delete("/:channelID", function (req, res, next) {
       channels.findOne({
         id: parseInt(attemptedChannelID)
       }, function(err, newChannel) {
-        if (newChannel
-          // && newChannel.creator == req.body.memberID
-          ) {
+        if (newChannel && newChannel.creator == req.headers["x-user"]) {
           channels.remove(
             { id: parseInt(attemptedChannelID) },
           function(err, doc) {
