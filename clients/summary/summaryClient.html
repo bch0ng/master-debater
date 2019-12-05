@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="author"
+    content="Leon Tan">
+  <meta name="description"
+    content="Summary Client">
+  <script src="client.js"
+    type="text/javascript"></script>
+
+  <link href="style.css"
+    rel="stylesheet" />
+
+  <title>Summary Client</title>
+
+</head>
+
+<body>
+  <header>
+    <h1>Simple Summary Client</h1>
+  </header>
+  <main>
+
+    <section>
+      <span>URL</span>
+      <input id="urlInput"
+        type="text"
+        size="100"
+        value="https://api.sumsumsummary.me/v1/summary?url=https://www.google.com"></input>
+      <button id="submitButton">Submit</button>
+    </section>
+
+    <section>
+      <div>
+        <span>Test logins</span>
+        <p>AuthToken:
+          <span id="AuthTokenDisplay"></span>
+        </p>
+      </div>
+
+      <input id="loginInput"
+        type="text"
+        size="100"
+        value=""
+        placeholder="username of new/existing user"></input>
+      <button id="makeNewUser">Make new user</button>
+      <button id="submitLoginInput">Attempt to login</button>
+
+      <input id="websocketPayloadInput"
+        type="text"
+        size="100"
+        value=""
+        placeholder="websocket payload"></input>
+      <button id="connectButton">connect to websocket</button>
+      <button id="sendPayloadButton">send websocket payload</button>
+
+    </section>
+    <br>
+
+    <section>
+      <input id="channelNameInput"
+        type="text"
+        size="70"
+        value=""
+        placeholder="Channel/Message ID"></input>
+      <div>
+        <span>User ID</span>
+        <input id="userIdInput"
+          type="number"
+          value="1"></input>
+      </div>
+      <select id="postRouteSelect">
+      </select>
+      <button id="submitFetchSelectorQuery">make selected fetch query.</button>
+    </section>
+
+    <section>
+      <p>Output</p>
+      <h2 id="titleOutput"></h2>
+      <p id="mainOutput"></p>
+    </section>
+  </main>
+  <script src="summaryClientOnloads.js"
+    type="text/javascript"></script>
+</body>
+
+</html>

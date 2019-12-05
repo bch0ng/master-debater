@@ -1,0 +1,54 @@
+version: '3'
+services:
+  info441-api:
+    container_name: info441-api
+    image: bch0ng/gateway
+    ports:
+      - 3000:3000
+      - 443:443
+    environment:
+      - MESSAGESADDR="micro-messaging"
+      - SUMMARYADDR="micro-summary"
+      - DSN="root@tcp(psql_database)/psql_db"
+      - REDISADDR="my-redis"
+      - SESSIONKEY="sessionkey123"
+      - ADDR=":443"
+      - TLSCERT="/etc/letsencrypt/live/api.sumsumsummary.me/fullchain.pem"
+      - TLSKEY="/etc/letsencrypt/live/api.sumsumsummary.me/privkey.pem"
+    volumes:
+      - /Users/bchong/certs:/etc/letsencrypt/live/api.sumsumsummary.me:ro
+    depends_on:
+      - psql_database
+      - my-redis
+      - my-mongodb
+      - micro-summary
+      - micro-messaging
+  psql_database:
+    container_name: psql_database
+    image: bch0ng/db
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+      - MYSQL_DATABASE=psql_db
+  my-redis:
+    container_name: my-redis
+    image: redis
+  my-mongodb:
+    container_name: my-mongodb
+    image: mongo
+    command: "mongo info441-a5 --eval 'db.createCollection(\"channel\") && db.createCollection(\"message\") && db.channel.createIndex( { \"email\" : 1 }, { unique : true } ) && db.channel.insertOne({ id: 1, name: \"general\", description: \"General channel\", private: false, members: [], createdAt: new Date(), creator: \"Admin\", editedAt: new Date()})'"
+  micro-summary:
+    container_name: micro-summary
+    image: bch0ng/summary-service
+    expose:
+      - "8000"
+    environment:
+      - ADDR=:80
+  micro-messaging:
+    container_name: micro-messaging
+    image: bch0ng/mongo-service
+    expose:
+      - "9000"
+    environment:
+      - PORT=80
+      - MONGO_URI="mongodb://my-mongodb/"
+      - MONGO_DB=info441-a5

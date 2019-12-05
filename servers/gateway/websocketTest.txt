@@ -1,0 +1,41 @@
+Paste into chrome's console to make a connection and ping.
+
+ ws = new WebSocket("ws://localhost:80/ws"); ws.onopen = function () { connection.send("Ping");
+}; ws.onmessage = function (e) { console.log("From Server:"+ e.data); }; ws.send("HelloHelloIsThereAnyoneThere");
+ws.close()
+
+https://www.websocket.org/echo.html
+
+
+var ws;
+let connect=function(){
+ ws= new WebSocket('wss://api.sumsumsummary.me/ws?auth="abcd"');
+ws.onopen = function () { ws.send(JSON.stringify({message:"Ping"}),()=>{
+  console.log("ping end");
+  });
+};
+ ws.onmessage = function (e) {
+  console.log("From Server:"+ e.data);
+ };
+  /*ws.send("HelloHelloIsThereAnyoneThere",()=>{
+    console.log("end");
+  });*/
+}
+let payloadTest={
+  message:"hello World"
+}
+let payloadTest2={
+  message:"2222222"
+}
+function sendMessage(payload){
+  ws.send(JSON.stringify(payload),()=>{
+    console.log("Message Sent");
+  });
+}
+function send1(){
+  sendMessage(payloadTest);
+}
+function send2(){
+  sendMessage(payloadTest2);
+}
+ws.close()

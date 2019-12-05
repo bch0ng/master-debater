@@ -1,0 +1,218 @@
+header{
+  background-color: #a6c4ff;
+  display: flex;
+  text-align: center;
+  flex-direction: column;
+}
+textarea{
+  border-radius: 3px;
+}
+input{
+  border-radius: 3px;
+  border-width: 1px;
+  margin: 2px;
+}
+
+button{
+  margin-right: 5px;
+}
+section{
+  padding-left: 1vw;
+  margin: .9em;
+  border-radius: 3px;
+  padding-bottom: 4vh;
+}
+main{
+  display: flex;
+  flex-direction: column;
+}
+body{
+  background-color: white;
+  padding: 0px;
+  margin: 0px;
+  display: flex;
+  flex-direction: column;
+  font-family: sans-serif;
+}
+.horizontalSpaceFiller25{
+  display: flex;
+  flex-basis: 25%;
+  min-width: 25%;
+}
+.loginStatusDiv{
+  color:green
+}
+.hideBoxXFiller .hideXBox{
+  position: relative;
+  font-weight: bold;
+  font-size: 1em;
+  border-radius: 5px;
+}
+.loginSection{
+  flex-grow: .4;
+  align-items: flex-start;
+  background-color: black;
+  color: white;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  padding-top: .3em;
+  padding-left: 1vw;
+}
+.bigTextInput{
+  font-size: 1.1em;
+}
+
+.loginSection .horizontalInputDiv{
+  margin-top: 1.5vh;
+}
+.loginSection .verticalInputDiv{
+  margin-right: 1.5vw;
+}
+.loginStatus{
+}
+.notLoggedIn{
+  color: red;
+}
+.invisible{
+  display: none !important;
+}
+.noWebsocketConnection{
+  color: red;
+}
+.websocketStatus{
+}
+.bearerToken{
+  visibility: hidden;
+}
+.verticalInputDiv{
+  display: flex;
+  flex-direction: column;
+}
+.horizontalInputDiv{
+  display: flex;
+  flex-direction: row;
+}
+#debateDisplay{
+    flex-basis: 70%;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+}
+.verticalListDiv{
+  margin:0px;
+  padding: 1em;
+  margin-right: 1vw;
+  background-color: black;
+  border-radius: inherit;
+  color: white;
+}
+.channelListElement{
+  border-radius: 4px;
+  background-color: black;
+  padding:.5em;
+  color: white;
+
+}
+.channelsDiv{
+  background-color: #bd264e;
+}
+.debateDisplayHeader{
+  font-size: 1.6em;
+  margin-top: 2vh;
+  margin-bottom: 1vh;
+  font-weight: bold;
+}
+.debatesSection{
+  background-color: #fcb5a7;
+  color: black;
+  display: flex;
+  flex-direction: row;
+  padding:0px;
+}
+.debateInnerContainer{
+  border-width: 2px;
+  border-color: black;
+  display: flex;
+  flex-direction: column;
+  border-radius: 4px;
+  flex-basis: 80%;
+  margin-bottom: 1vh;
+}
+.bottom-border-flat{
+  border-radius: 5px;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+.roundBorder{
+  border-radius: 5px;
+}
+.listContainer{
+  background-color: #bd264e;
+  color: white;
+  margin-top: 1vh;
+  padding-top: .1rem;
+  padding: .5rem;
+
+  height: 40vh;
+  overflow-y: scroll;
+}
+
+.messageDiv{
+  padding: .5rem;
+  padding-bottom: .3rem;
+  margin-bottom: 2vh;
+  font-size: 1rem;
+  border-radius: 3px;
+  background-color: black;
+  display: flex;
+  flex-direction: column;
+}
+.playHeader{
+  display: flex;
+  flex-direction: row;
+  margin-top: 2vh;
+  font-size: 3rem;
+}
+#messageInputContainer{
+  margin-top: 0px;
+  background-color: white;
+  padding-left: 1vw;
+  padding-right: 1vw;
+  border-style: solid;
+  border-color: #bd264e;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+.altHighlights textarea, .altHighlights input, .altHighlights button{
+  margin:.3vw;
+  border-width: 3px;
+  border-color: black;
+  border-radius: 4px;
+  margin-bottom: 2vh;
+  margin-top: 2vh;
+  border-style: solid;
+
+}
+.altHighlights button:focus{
+  outline-color: green;
+  outline-width: thin;
+}
+.altHighlights button:active{
+  outline-color: pink;
+  background-color: green;
+  color: white;
+  border-color: black;
+}
+
+.altHighlights textarea:focus, .altHighlights input:focus{
+  border-width: 4px;
+  border-color: green;
+  box-shadow: none;
+  outline:none;
+  outline-width: thick;
+  outline-color: green;
+  outline-offset: 0px;
+}

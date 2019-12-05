@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="author"
+    content="Leon Tan">
+  <meta name="description"
+    content="Master Debator">
+
+  <link href="style.css"
+    rel="stylesheet" />
+
+  <script src="client.js"
+    type="text/javascript"></script>
+  <title>Master Debater</title>
+
+</head>
+
+<body>
+  <header>
+    <h1 title="( ͡° ͜ʖ ͡°)">MASTER DEBATER</h1>
+    <div id="loginStatusDiv"
+      class="loginStatusDiv invisible">
+      <span id="loginUsernameSpan"
+        class="loginStatus notLoggedIn">Not logged in</span>
+      <span id="AuthTokenDisplay"
+        class="invisible">Bearer:</span>
+      <span class="websocketStatus invisible noWebsocketConnection">No websocket connection.</span>
+    </div>
+  </header>
+  <main>
+
+    <section class="loginSection"
+      title="(；･`д･´)">
+
+      <div class="">
+        <h3 title="( ͡°( ͡° ͜ʖ( ͡° ͜ʖ ͡°)ʖ ͡°) ͡°)">Login/Register</h3>
+        <div class="verticalInputDiv">
+
+          <div class="horizontalInputDiv"
+            id="registerSectionDiv">
+            <div class="verticalInputDiv">
+              <input id="emailInput"
+                class="bigTextInput"
+                type="text"
+                size="40"
+                value=""
+                placeholder="Email"></input>
+              <input id="passwordInput"
+                class="bigTextInput"
+                type="password"
+                size="40"
+                value=""
+                placeholder="Password"></input>
+            </div>
+            <div class="verticalInputDiv">
+
+              <input id="firstNameInput"
+                type="text"
+                size="40"
+                value=""
+                placeholder="First name of new user"></input>
+
+              <input id="lastNameInput"
+                type="text"
+                size="40"
+                value=""
+                placeholder="Last name of new/existing user"></input>
+            </div>
+          </div>
+          <div class="horizontalInputDiv"><button id="makeNewUserButton">Make new user</button>
+            <button id="attemptLoginButton">Attempt to login</button></div>
+        </div>
+      </div>
+      <div class="hideBoxXFiller">
+        <button class="hideXBox">_</button>
+      </div>
+    </section>
+
+    <section class="debatesSection">
+      <div class="horizontalInputDiv roundBorder">
+
+        <div class="verticalListDiv"
+          title="(｡>﹏<｡)">
+          <div>
+            <span>Debates</span>
+          </div>
+          <div id="debateSelector"
+            class="listContainer roundBorder">
+            <div>
+              <Button class="channelListElement">Sample Debate</button>
+            </div>
+          </div>
+        </div>
+        <div id="debateDisplay">
+          <div class="debateDisplayHeader"
+            title="OwO">
+            <span>Debate:</span>
+            <span id="debateNameSpan">nil</span>
+          </div>
+          <div id="messagesContainer"
+            class="debateInnerContainer"
+            title="•̀.̫•́✧">
+            <div id="appendMessagesTo"
+              class="listContainer bottom-border-flat">
+
+            </div>
+            <div id="messageInputContainer"
+              class="altHighlights"
+              title="(๑˃̵ᴗ˂̵)ﻭ">
+              <div class="horizontalInputDiv">
+                <div class="setHandleDiv">
+                  <div class="horizontalInputDiv"><input id="handleInput"
+                      type="text"
+                      size="20"
+                      value=""
+                      placeholder="Handle Tag"></input>
+                  </div>
+                </div>
+                <textarea id="messageInput"
+                  value=""
+                  placeholder="Message"
+                  maxlength="300"
+                  rows="1"
+                  cols="50"></textarea>
+                <button id="sendButton">Send</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="index.js"
+    type="text/javascript"></script>
+</body>
+
+</html>

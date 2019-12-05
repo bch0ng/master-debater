@@ -20,11 +20,8 @@ https://www.lucidchart.com/invitations/accept/c719ef91-0be0-462c-9432-0dbcb8a638
 ### User Stories
 |Priority|User|Description|
 |--------|----|-----------|
-|P0|As a debater|I want to filter out chatrooms with my favoured topics. I want to be able to post within chat rooms. I want to see my mailbox for new messages. I want to be able to delete my account when I'm done with this app.<br />API routes: <ul><li>GET /chatroom/{query}</li><li>POST /chatroom/{id}/post</li><li>DELETE /user</li></ul>|
-|P1|As an audience|I want to vote affirmative or negative for a claim in a chatroom. I want to be able to create an account.<br />API routes:<ul><li>POST /chatroom/{id}?{vote}</li><li>POST /user/create</li></ul>|
-|P2|As a host|I want to create a chatroom with my favoured topics.<br />API routes:<ul><li>GET /chatroom/create</li><li>API:POST /chatroom/{id}</li></ul>|
-|P3|As a moderator|I want to be able to kick out bad participants.<br />API routes:<ul><li>POST /chatroom/{id}/kick/{userId}</li></ul>|
- 
+|P0|As a debater|I want to filter out chatrooms with my favoured topics. I want to be able to post within chat rooms. I want to see my mailbox for new messages.<br />API routes: <ul><li>GET /v2/openchannels</li><li>POST /v1/channels/{id}</li></ul>|
+|P1|As a student|I want to watch people debate.<br />API routes: <ul><li>GET /v2/openchannels</li><li>POST /v1/channels/{id}</li></ul>|
 
 ### API Design
 
