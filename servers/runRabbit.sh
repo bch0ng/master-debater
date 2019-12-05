@@ -1,0 +1,1 @@
+docker run -d --net mynet -e PORT=80 -e MONGO_URI="mongodb://my-mongodb/" -e MONGO_DB=info441-a5 -e RABBITMQADDR="amqp://my-rabbitmq" --expose 9000 --name micro-messaging $DOCKER_USERNAME/mongo-service
